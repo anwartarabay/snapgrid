@@ -3,36 +3,55 @@
 <head>
     <title>Camera Capture Example</title>
     <style>
-        #camera-stream {
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #camera-stream, #snap {
             display: none;
+        }
+        #snapshot {
+            margin-top: 10px;
+            display: none;
+        }
+        video, canvas {
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
 <body>
     <h1>Camera Capture Example</h1>
     <a href="#" id="start-camera">Start Camera</a>
-    <video id="camera-stream" width="400" height="300"></video>
+    <br>
+    <video id="camera-stream" playsinline></video>
+    <br>
     <button id="snap">Capture Photo</button>
-    <canvas id="snapshot" width="400" height="300" style="display:none;"></canvas>
+    <canvas id="snapshot"></canvas>
 
     <script>
         document.getElementById('start-camera').addEventListener('click', function(event) {
             event.preventDefault();
             let video = document.getElementById('camera-stream');
-            let canvas = document.getElementById('snapshot');
-            let context = canvas.getContext('2d');
             let snapButton = document.getElementById('snap');
+            let canvas = document.getElementById('snapshot');
 
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
                     video.srcObject = stream;
                     video.play();
                     video.style.display = 'block';
+                    snapButton.style.display = 'inline-block';
+                }).catch(function(error) {
+                    console.log("Error accessing camera: ", error);
                 });
             }
 
             snapButton.addEventListener('click', function() {
-                context.drawImage(video, 0, 0, 400, 300);
+                let context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
                 canvas.style.display = 'block';
             });
         });

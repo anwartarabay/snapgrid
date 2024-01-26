@@ -7,7 +7,7 @@
             text-align: center;
             font-family: Arial, sans-serif;
         }
-        #camera-stream, #snap {
+        #camera-stream, #snap, #switch-camera {
             display: none;
         }
         #snapshot {
@@ -27,34 +27,47 @@
     <video id="camera-stream" playsinline></video>
     <br>
     <button id="snap">Capture Photo</button>
+    <button id="switch-camera">Switch Camera</button>
     <canvas id="snapshot"></canvas>
 
     <script>
+        let video = document.getElementById('camera-stream');
+        let snapButton = document.getElementById('snap');
+        let switchButton = document.getElementById('switch-camera');
+        let canvas = document.getElementById('snapshot');
+        let currentCamera = 'user'; // Default to front camera ('user') or 'environment' for back
+
         document.getElementById('start-camera').addEventListener('click', function(event) {
             event.preventDefault();
-            let video = document.getElementById('camera-stream');
-            let snapButton = document.getElementById('snap');
-            let canvas = document.getElementById('snapshot');
+            startCamera(currentCamera);
+        });
 
+        switchButton.addEventListener('click', function() {
+            currentCamera = (currentCamera === 'user') ? 'environment' : 'user';
+            startCamera(currentCamera);
+        });
+
+        snapButton.addEventListener('click', function() {
+            let context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.style.display = 'block';
+        });
+
+        function startCamera(facingMode) {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } }).then(function(stream) {
                     video.srcObject = stream;
                     video.play();
                     video.style.display = 'block';
                     snapButton.style.display = 'inline-block';
+                    switchButton.style.display = 'inline-block';
                 }).catch(function(error) {
                     console.log("Error accessing camera: ", error);
                 });
             }
-
-            snapButton.addEventListener('click', function() {
-                let context = canvas.getContext('2d');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                canvas.style.display = 'block';
-            });
-        });
+        }
     </script>
 </body>
 </html>

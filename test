@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Capture Example</title>
+    <style>
+        #camera-stream {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Camera Capture Example</h1>
+    <a href="#" id="start-camera">Start Camera</a>
+    <video id="camera-stream" width="400" height="300"></video>
+    <button id="snap">Capture Photo</button>
+    <canvas id="snapshot" width="400" height="300" style="display:none;"></canvas>
+
+    <script>
+        document.getElementById('start-camera').addEventListener('click', function(event) {
+            event.preventDefault();
+            let video = document.getElementById('camera-stream');
+            let canvas = document.getElementById('snapshot');
+            let context = canvas.getContext('2d');
+            let snapButton = document.getElementById('snap');
+
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    video.style.display = 'block';
+                });
+            }
+
+            snapButton.addEventListener('click', function() {
+                context.drawImage(video, 0, 0, 400, 300);
+                canvas.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
